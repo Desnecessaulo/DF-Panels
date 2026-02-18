@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         DF Panels (BETA)
 // @namespace    http://tampermonkey.net/
-// @version      0.2.1
+// @version      0.2.2
 // @description  Panels script for Dead Frontier - Boss Timer, Auto Bank, Quick Service and Quick Buy
 // @author       D1N0 + Community scripts
 // @exclude      https://fairview.deadfrontier.com/onlinezombiemmo/index.php?action=login2
@@ -25,51 +25,51 @@
  * ═══════════════════════════════════════════════════════════════════════════
  * DF PANELS - COMPREHENSIVE UTILITY PANELS FOR DEAD FRONTIER
  * ═══════════════════════════════════════════════════════════════════════════
- *
+ * 
  * WHAT THIS SCRIPT DOES:
  * ----------------------
  * Adds four utility panels to the Dead Frontier game interface:
- *
+ * 
  * 1. BOSS TIMER
  *    - Countdown to next hourly boss spawn
  *    - Special Devil Hound spawn alert (Inner City special spawn only)
  *    - Boss map button (opens dfprofiler.com in modal)
- *
+ * 
  * 2. AUTO BANK
  *    - Quick withdraw buttons (50k, 150k, 5M, All)
  *    - Quick deposit all button
  *    - Restores marketplace search when returning from bank
- *
+ * 
  * 3. QUICK SERVICE
  *    - One-click food/medical/armor repair in marketplace
  *    - All Services button (executes all three)
  *    - Smart item selection based on character level
  *    - Money check before redirect to marketplace
- *
+ * 
  * 4. QUICK BUY
  *    - Rapid purchase of common items (food, ammo, repair kits)
  *    - Right-click to favorite items (green highlight)
  *    - Auto-search and purchase
- *
+ * 
  * DATA STORAGE:
  * -------------
  * - Marketplace cache: GM.getValue/GM.setValue (30s cache, max 17 requests/30s)
  * - Search history: localStorage (last search term)
  * - Favorites: localStorage (highlighted QuickBuy items)
- *
+ * 
  * EXTERNAL API:
  * ------------
  * - dfprofiler.com/bossmap/json - Boss spawn data (read-only, public)
  * - NO user data is sent externally
  * - All game actions use Dead Frontier's own endpoints
- *
+ * 
  * SECURITY:
  * ---------
  * - NO credentials stored
  * - Uses game's built-in hash() function for requests
  * - Isolated to panel container areas only
  * - Open source - full code visible below
- *
+ * 
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
@@ -1468,7 +1468,7 @@
                             var entry = data[key];
                             var enemyType = (entry.special_enemy_type || '').toLowerCase();
                             var bossNum = parseInt(entry.boss_num || '999');
-
+                            
                             // Only detect the SPECIAL daily Devil Hound spawn (Inner City, near Secronom).
                             // The special spawn has a low boss_num (1-6 range), while the regular Wasteland
                             // Devil Hound spawns have boss_num 27+. Filter to boss_num < 10 to catch only special.
@@ -1541,7 +1541,7 @@
         return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
     }
 
-    function buildBossPanel() {
+    function buildBossPanel(skipTracker) {
         var body = document.createElement('div');
         body.id = 'bt-body';
         body.className = 'df-panel-body';
@@ -1574,8 +1574,10 @@
             else timerEl.classList.remove('bt-urgent');
         }, 1000);
 
-        // Start Devil Hound tracker after panel is built
-        startDevilHoundTracker(bossBtn, built.inner);
+        // Start Devil Hound tracker only on normal pages (not DF3D/battlefield)
+        if(!skipTracker) {
+            startDevilHoundTracker(bossBtn, built.inner);
+        }
 
         return built.panel;
     }
@@ -1847,9 +1849,9 @@
     ///////////////////////////////////////////
 
     async function init() {
-        // Special pages: show only the Boss Timer panel
+        // Special pages: show only the Boss Timer panel (no Devil Hound tracker)
         if(isBossTimerOnly) {
-            var btPanelSpecial = buildBossPanel();
+            var btPanelSpecial = buildBossPanel(true);
 
             function placeBT() {
                 var rightTd = getRightColumnCell();
