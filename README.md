@@ -13,7 +13,7 @@ Comprehensive utility panels for game Dead Frontier
 ## Installation
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) (Chrome/Edge) or [Greasemonkey](https://www.greasespot.net/) (Firefox)
-2. Click here to install: [XXX]
+2. Click here to install: https://greasyfork.org/pt-BR/scripts/566610-df-panels-beta
 
 ## Security
 
